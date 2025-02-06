@@ -1,64 +1,127 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 using System.Collections.Generic;
 
 public class DailyBonusManager : MonoBehaviour
 {
-    public List<Button> dayRewardButtons;  // List for daily bonus buttons
-    public List<Text> dayRewardTexts;  // List for daily bonus reward texts
-    public DailyBonusData dailyBonusData; // Reference to daily bonus data scriptable object
-
-    private List<bool> isDayCollected; // List to track collected days
+    public List<Button> dayRewardButtons;
+    public List<Text> dayRewardTexts;
+    public DailyBonusData dailyBonusData;
+    
+    private int lastClaimedDay;
+    private DateTime lastClaimedDate;
 
     private void Start()
     {
-        if (dailyBonusData == null || dailyBonusData.dailyBonusRewards.Count == 0) // Check if dailyBonusData is missing or not configured properly
+        LoadDailyBonusProgress(); // Load saved progress
+
+        if (dailyBonusData == null || dailyBonusData.dailyBonusRewards.Count == 0)
         {
             Debug.LogError("DailyBonusData is missing or not configured properly!");
             return;
         }
 
-        isDayCollected = new List<bool>(new bool[dailyBonusData.dailyBonusRewards.Count]);  // Initialize isDayCollected list with false values
-        SetupDailyBonusListeners(); 
+        SetupDailyBonusListeners();
         UpdateDailyBonusLabels();
+        UpdateButtonStates();
     }
 
-    private void SetupDailyBonusListeners() // Method to setup listeners for daily bonus buttons
+    private void SetupDailyBonusListeners()
     {
         for (int i = 0; i < dayRewardButtons.Count; i++)
         {
-            int day = i;
-            dayRewardButtons[i].onClick.AddListener(() => CollectDailyReward(day));
+            int day = i + 1; // Making it Day 1, Day 2, etc.
+            dayRewardButtons[i].onClick.AddListener(() => TryCollectDailyReward(day));
         }
     }
 
-    private void CollectDailyReward(int day) // Method to collect daily reward
+    private void TryCollectDailyReward(int day)
     {
-        if (!isDayCollected[day])
+        if (!CanCollectReward(day))
         {
-            // Extract numeric value from the string and convert to int
-            string rewardString = dailyBonusData.dailyBonusRewards[day];
-            int rewardAmount = int.Parse(rewardString.Split(' ')[0]); // Extracts the number before "Coins"
+            Debug.Log("Cannot claim reward for Day " + day);
+            return;
+        }
 
-            WalletManager.Instance.AddCoins(rewardAmount);
-            isDayCollected[day] = true;
-
-            if (dayRewardButtons[day] != null)
-                dayRewardButtons[day].interactable = false;
-
-            UIEventSystem.Instance.TriggerRewardCollected(day); // Trigger reward collected event
-    }
+        CollectDailyReward(day);
     }
 
-
-    private void UpdateDailyBonusLabels() // Method to update daily bonus reward texts
+    private bool CanCollectReward(int day)
     {
-        for (int i = 0; i < dayRewardButtons.Count; i++)
+        DateTime today = DateTime.Today;
+
+        if (day != lastClaimedDay + 1) // Enforce linear claiming (Day 1 → Day 2)
+        {
+            Debug.Log("You must claim rewards in order. Next available: Day " + (lastClaimedDay + 1));
+            return false;
+        }
+
+        if (lastClaimedDate == today) // Prevent multiple claims in one day
+        {
+            Debug.Log("You already claimed today's reward!");
+            return false;
+        }
+
+        return true;
+    }
+
+    private void CollectDailyReward(int day)
+    {
+        WalletManager.Instance.AddCoins(int.Parse(dailyBonusData.dailyBonusRewards[day - 1])); // Convert string to int
+        lastClaimedDay = day;
+        lastClaimedDate = DateTime.Today;
+
+        SaveDailyBonusProgress(); // Save progress
+        UpdateButtonStates();
+        UIEventSystem.Instance.TriggerRewardCollected(day);
+        Debug.Log("Reward for Day " + day + " collected!");
+    }
+
+    private void UpdateDailyBonusLabels()
+    {
+        for (int i = 0; i < dayRewardTexts.Count; i++)
         {
             if (i < dailyBonusData.dailyBonusRewards.Count && dayRewardTexts[i] != null)
             {
-                dayRewardTexts[i].text = dailyBonusData.dailyBonusRewards[i] + " Coins";
+                dayRewardTexts[i].text = dailyBonusData.dailyBonusRewards[i];
             }
         }
+    }
+
+    private void UpdateButtonStates()
+    {
+        for (int i = 0; i < dayRewardButtons.Count; i++)
+        {
+            int day = i + 1;
+            if (day <= lastClaimedDay)
+                dayRewardButtons[i].interactable = false; // Already claimed
+            else if (day == lastClaimedDay + 1)
+                dayRewardButtons[i].interactable = true; // Next available reward
+            else
+                dayRewardButtons[i].interactable = false; // Future days are locked
+        }
+    }
+
+    private void LoadDailyBonusProgress()
+    {
+        lastClaimedDay = PlayerPrefs.GetInt("LastClaimedDay", 0);
+        string savedDate = PlayerPrefs.GetString("LastClaimedDate", "");
+
+        if (!string.IsNullOrEmpty(savedDate))
+        {
+            lastClaimedDate = DateTime.Parse(savedDate);
+        }
+        else
+        {
+            lastClaimedDate = DateTime.MinValue;
+        }
+    }
+
+    private void SaveDailyBonusProgress()
+    {
+        PlayerPrefs.SetInt("LastClaimedDay", lastClaimedDay);
+        PlayerPrefs.SetString("LastClaimedDate", lastClaimedDate.ToString());
+        PlayerPrefs.Save();
     }
 }

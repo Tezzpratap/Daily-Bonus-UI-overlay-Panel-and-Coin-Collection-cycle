@@ -3,10 +3,10 @@ using UnityEngine.UI;
 
 public class WalletManager : MonoBehaviour
 {
-    public static WalletManager Instance { get; private set; }
-
-    [SerializeField] private Text walletText;
-    private int totalCoins;
+    public static WalletManager Instance { get; private set; } // Singleton instance
+    
+    [SerializeField] private Text walletText; // Reference to wallet text UI element
+    private int totalCoins; // Total coins collected by the player
 
     private void Awake()
     {
@@ -18,20 +18,20 @@ public class WalletManager : MonoBehaviour
 
     private void Start()
     {
-        UpdateWalletText();
+        UpdateWalletText(); // Update wallet text on start
     }
 
-    public void AddCoins(int amount)
+    public void AddCoins(int amount) // Method to add coins to the wallet
     {
         totalCoins += amount;
         UpdateWalletText();
     }
 
-    private void UpdateWalletText()
+    private void UpdateWalletText() // Method to update wallet text
     {
         if (walletText != null)
         {
-            walletText.text = $"{totalCoins} Coins";
+            walletText.text = totalCoins + " Coins";
         }
     }
 }

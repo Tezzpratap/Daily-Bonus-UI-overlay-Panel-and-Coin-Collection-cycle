@@ -1,0 +1,12 @@
+using UnityEngine;
+
+[CreateAssetMenu(menuName = "ScriptableObjects/GameEvent")]
+public class GameEvent : ScriptableObject
+{
+    public System.Action OnEventRaised;
+
+    public void RaiseEvent()
+    {
+        OnEventRaised?.Invoke();
+    }
+}

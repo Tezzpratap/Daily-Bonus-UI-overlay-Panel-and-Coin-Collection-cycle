@@ -1,0 +1,9 @@
+// ProgressionData.cs
+using UnityEngine;
+
+[CreateAssetMenu(menuName = "ScriptableObjects/ProgressionData")]
+public class ProgressionData : ScriptableObject
+{
+    public int lastClaimedDay;
+    public string lastClaimedDate;
+}

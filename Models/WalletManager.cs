@@ -3,6 +3,8 @@ using UnityEngine.UI;
 
 public class WalletManager : MonoBehaviour
 {
+    public WalletData walletData; // ScriptableObject reference
+
     public static WalletManager Instance { get; private set; } // Singleton instance
     
     [SerializeField] private Text walletText; // Reference to wallet text UI element
@@ -17,7 +19,8 @@ public class WalletManager : MonoBehaviour
     }
 
     private void Start()
-    {
+    {   
+        totalCoins = walletData.initialCoins; // Initialize total coins with initial coins
         UpdateWalletText(); // Update wallet text on start
     }
 
@@ -35,3 +38,4 @@ public class WalletManager : MonoBehaviour
         }
     }
 }
+

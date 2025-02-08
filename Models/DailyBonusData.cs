@@ -12,13 +12,13 @@ public class DailyBonusData : ScriptableObject
         //dailyBonusRewards = new List<int> { 10, 50, 0, 80, 100, 150, 200 };
         dailyBonusRewards = new List<int>
         {
-            10,
-            50,
-            0, //GetRandomReward3rdDay(), // Random coins or gift
-            90,
-            100,
-            150,
-            200,//GetRandomReward7thDay(),  // Random coins or gift
+            10, //Day 1 reward
+            50, //Day 2 reward
+            0, //GetRandomReward3rdDay(), // Random coins or gift for day 3
+            90, //Day 4 reward
+            100, //Day 5 reward
+            150, //Day 6 reward
+            200,//GetRandomReward7thDay(),  // Random coins or gift for day 7
         };
         //dailyBonusRewards = new List<string> { "10 Coins", "50 Coins", "0 Coins", "80 Coins", "100 Coins", "150 Coins", "200 Coins" };
         /*dailyBonusRewards = new List<string>

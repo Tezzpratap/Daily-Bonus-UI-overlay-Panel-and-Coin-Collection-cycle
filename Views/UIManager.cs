@@ -5,7 +5,7 @@ public class UIManager : MonoBehaviour
 {
     public GameObject dailyBonusPanel;  // Reference to daily bonus panel
     public GameObject mainMenuPanel;    // Reference to main menu panel
-    
+    public UIData uiData; // ScriptableObject reference
     public Button openDailyBonusButton; // Reference to open daily bonus button
     public Button closeDailyBonusButton; // Reference to close daily bonus button
 
@@ -16,14 +16,36 @@ public class UIManager : MonoBehaviour
         UIEventSystem.Instance.OnPanelClosed += HidePanel;  // Subscribe to panel closed event
     }
 
-    private void AssignButtonListeners() // Method to assign button listeners
+    private void ApplyUIConfig()
+    {
+        if (dailyBonusPanel != null)
+        {
+            Image bg = dailyBonusPanel.GetComponent<Image>();
+            if (bg != null) bg.color = uiData.panelBackgroundColor;
+        }
+    }
+
+    private void AssignButtonListeners()
     {
         if (openDailyBonusButton != null)
-            openDailyBonusButton.onClick.AddListener(() => UIEventSystem.Instance.TriggerPanelOpened("DailyBonus")); // Trigger panel opened event
-        
+        {  
+            openDailyBonusButton.onClick.AddListener(() =>
+            {
+                Debug.Log("Open Daily Bonus Button Clicked!");
+                UIEventSystem.Instance.TriggerPanelOpened("DailyBonus");
+            });
+        }
+
         if (closeDailyBonusButton != null)
-            closeDailyBonusButton.onClick.AddListener(() => UIEventSystem.Instance.TriggerPanelClosed("DailyBonus")); // Trigger panel closed event
+        {
+            closeDailyBonusButton.onClick.AddListener(() =>
+            {
+                Debug.Log("Close Daily Bonus Button Clicked!");
+                UIEventSystem.Instance.TriggerPanelClosed("DailyBonus");
+            });
+        }
     }
+
 
     private void ShowPanel(string panelName) // Mehtod to show panel
     {

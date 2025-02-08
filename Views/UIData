@@ -1,0 +1,14 @@
+// UIData.cs
+using UnityEngine;
+
+[CreateAssetMenu(fileName = "UIData", menuName = "ScriptableObjects/UIData")]
+public class UIData : ScriptableObject
+{
+    [Header("Colors")]
+    public Color panelBackgroundColor;
+    public Color buttonDefaultColor;
+    public Color buttonHighlightColor;
+
+    [Header("Animations")]
+    public float panelTransitionDuration = 0.3f;
+}
